@@ -3,23 +3,39 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--color-bg-primary);
+  /* Subtle gradient background behind all glass panels */
+  background: radial-gradient(circle at top left, #1f2933 0%, #020617 45%, #000000 100%);
   overflow: hidden;
 }
 
+/* Main content sits as a frosted “sheet” over the background */
 .main-content {
   flex: 1;
   display: flex;
   overflow: hidden;
   position: relative;
+  margin: 12px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.65); /* glass layer */
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(15, 23, 42, 0.6);
 }
 
+/* Panels look like inner glass cards */
 .editor-panel {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--color-bg-secondary);
-  border-right: 1px solid var(--color-border);
+  background: linear-gradient(
+    145deg,
+    rgba(15, 23, 42, 0.8),
+    rgba(15, 23, 42, 0.4)
+  );
+  border-right: 1px solid rgba(148, 163, 184, 0.35);
   overflow: hidden;
 }
 
@@ -27,33 +43,55 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--color-bg-primary);
+  background: linear-gradient(
+    145deg,
+    rgba(15, 23, 42, 0.7),
+    rgba(15, 23, 42, 0.3)
+  );
   overflow: hidden;
 }
 
+/* Glassy resize handle between panels */
 .resize-handle {
-  width: 8px;
+  width: 10px;
   cursor: col-resize;
-  background: var(--color-bg-primary);
   position: relative;
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background var(--transition-fast);
-}
-
-.resize-handle:hover {
-  background: var(--color-accent-primary);
+  /* glass look */
+  background: radial-gradient(circle, rgba(148, 163, 184, 0.15), transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    width var(--transition-fast);
 }
 
 .resize-handle-bar {
   width: 2px;
-  height: 100%;
-  background: var(--color-border);
-  transition: background var(--transition-fast);
+  height: 60%;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.7);
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.8),
+    0 0 10px rgba(59, 130, 246, 0.5);
+  transition: background var(--transition-fast), box-shadow var(--transition-fast), height var(--transition-fast);
+}
+
+/* Hover = brighter, more pronounced glass */
+.resize-handle:hover {
+  width: 12px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.28), transparent);
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.45);
 }
 
 .resize-handle:hover .resize-handle-bar {
-  background: white;
+  background: #e5f0ff;
+  height: 70%;
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.9),
+    0 0 14px rgba(96, 165, 250, 0.9);
 }
