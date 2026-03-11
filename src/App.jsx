@@ -1,0 +1,461 @@
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import Editor from './components/Editor';
+import Preview from './components/Preview';
+import Toolbar from './components/Toolbar';
+import FilePanel from './components/FilePanel';
+import { useLocalStorage } from './utils/useLocalStorage';
+import defaultThemes from './styles/themes';
+import './App.css';
+
+const defaultMarkdown = `# Markdown Cheatsheet
+
+## Headers
+# H1
+## H2
+### H3
+#### H4
+##### H5
+###### H6
+
+## Emphasis
+**Bold** or __Bold__
+*Italic* or _Italic_
+***Bold Italic***
+~~Strikethrough~~
+
+## Lists
+### Unordered
+- Item 1
+- Item 2
+  - Sub Item 2a
+  - Sub Item 2b
+
+### Ordered
+1. First
+2. Second
+3. Third
+
+### Task List
+- [x] Done task
+- [ ] Todo task
+
+## Links & Images
+[Link Text](https://example.com)
+![Image Alt](https://picsum.photos/150/100)
+
+## Code
+Inline \`code\` example.
+
+\`\`\`javascript
+// Code block
+function hello() {
+  console.log("Hello World");
+}
+\`\`\`
+
+## Tables
+| Header 1 | Header 2 | Header 3 |
+| ------- | ------ | ------- |
+| Cell 1   | Cell 2   | Cell 3   |
+| Cell 4   | Cell 5   | Cell 6   |
+
+## Blockquotes
+> This is a blockquote.
+>
+> > Nested blockquote.
+
+## Math (KaTeX)
+Inline: $E = mc^2$
+
+Block:
+$$
+\\oint_C \\vec{B} \\cdot d\\vec{l} = \\mu_0 I_{enc}
+$$
+
+## Horizontal Rule
+---
+
+## Footnotes
+Here is a footnote reference[^1].
+
+[^1]: Here is the footnote.
+
+## Chart
+
+\`\`\`mermaid
+pie title Programming Languages Usage
+    "JavaScript" : 35
+    "Python" : 25
+    "Java" : 20
+    "C++" : 12
+    "Others" : 8
+\`\`\`
+
+## HTML Support
+<div style="background-color: #e8f4fd; padding: 15px; border-left: 4px solid #2196F3; border-radius: 4px; color: green;">
+  <p>This is a <strong>HTML div element</strong> with inline styles.</p>
+</div>
+`;
+
+function App() {
+  const [markdown, setMarkdown] = useState('');
+  const [columns, setColumns] = useLocalStorage('cheatsheet_columns', 5);
+  const [fontSize, setFontSize] = useLocalStorage('cheatsheet_fontSize', 8);
+  const [padding, setPadding] = useLocalStorage('cheatsheet_padding', 5);
+  const [gap, setGap] = useLocalStorage('cheatsheet_gap', 1);
+  const [lineHeight, setLineHeight] = useLocalStorage('cheatsheet_lineHeight', 1.2);
+  const [scale, setScale] = useState(0.6);
+  const [orientation, setOrientation] = useLocalStorage('cheatsheet_orientation', 'landscape');
+  const [theme, setTheme] = useLocalStorage('cheatsheet_theme', 'classic');
+  const [fontFamily, setFontFamily] = useLocalStorage('cheatsheet_fontFamily', 'inter');
+  const [appTheme, setAppTheme] = useLocalStorage('cheatsheet_app_theme', 'dark');
+  const [splitSize, setSplitSize] = useLocalStorage('cheatsheet_splitSize', 50);
+  const [customThemes, setCustomThemes] = useLocalStorage('cheatsheet_custom_themes', {});
+  const [liveUpdate, setLiveUpdate] = useState(true);
+  const [isFilePanelOpen, setIsFilePanelOpen] = useState(false);
+  const [currentFile, setCurrentFile] = useState(null);
+
+  const previewRef = useRef(null);
+  const previewContainerRef = useRef(null);
+  const editorRef = useRef(null);
+  const markdownRef = useRef(markdown);
+
+  const allThemes = useMemo(() => ({
+    ...defaultThemes,
+    ...customThemes
+  }), [customThemes]);
+
+  const handleThemeUpdate = (key, newTheme) => {
+    setCustomThemes(prev => ({
+      ...prev,
+      [key]: newTheme
+    }));
+    // If the key is new (custom theme), we might want to switch to it
+    if (key !== theme) {
+      setTheme(key);
+    }
+  };
+
+  // 保持 markdownRef 同步
+  useEffect(() => {
+    markdownRef.current = markdown;
+  }, [markdown]);
+
+  // Apply app theme
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', appTheme);
+  }, [appTheme]);
+
+  const defaultValues = {
+    columns: 5,
+    fontSize: 8,
+    padding: 5,
+    gap: 1,
+    lineHeight: 1.2,
+    orientation: 'landscape',
+    theme: 'classic',
+    fontFamily: 'inter',
+    appTheme: 'dark'
+  };
+
+  // 初始化当前文件
+  useEffect(() => {
+    const savedFiles = localStorage.getItem('cheatsheet_files');
+    if (savedFiles) {
+      try {
+        const parsedFiles = JSON.parse(savedFiles);
+        if (parsedFiles.length > 0) {
+          // 按更新时间排序，最新的在最上面
+          const sortedFiles = parsedFiles.sort((a, b) =>
+            new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+          setCurrentFile(sortedFiles[0]);
+          setMarkdown(sortedFiles[0].content);
+
+          // Load toolbar settings from the current file if they exist
+          if (sortedFiles[0].toolbarSettings) {
+            const settings = sortedFiles[0].toolbarSettings;
+            if (settings.columns !== undefined) setColumns(settings.columns);
+            if (settings.fontSize !== undefined) setFontSize(settings.fontSize);
+            if (settings.padding !== undefined) setPadding(settings.padding);
+            if (settings.gap !== undefined) setGap(settings.gap);
+            if (settings.lineHeight !== undefined) setLineHeight(settings.lineHeight);
+            if (settings.orientation !== undefined) setOrientation(settings.orientation);
+            if (settings.theme !== undefined) setTheme(settings.theme);
+            if (settings.fontFamily !== undefined) setFontFamily(settings.fontFamily);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse saved files:', e);
+      }
+    } else {
+      const defaultFile = {
+        id: Date.now(),
+        name: 'Untitled',
+        content: defaultMarkdown,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        toolbarSettings: {
+          columns,
+          fontSize,
+          padding,
+          gap,
+          lineHeight,
+          orientation,
+          theme,
+          fontFamily
+        }
+      };
+      setCurrentFile(defaultFile);
+      setMarkdown(defaultMarkdown);
+      localStorage.setItem('cheatsheet_files', JSON.stringify([defaultFile]));
+    }
+  }, []);
+
+  // Keep settings ref updated for save operations
+  const settingsRef = useRef({
+    columns, fontSize, padding, gap, lineHeight, orientation, theme, fontFamily
+  });
+
+  useEffect(() => {
+    settingsRef.current = {
+      columns, fontSize, padding, gap, lineHeight, orientation, theme, fontFamily
+    };
+  }, [columns, fontSize, padding, gap, lineHeight, orientation, theme, fontFamily]);
+
+  // 保存当前文件到 localStorage (使用 ref 获取最新值)
+  const saveCurrentFile = () => {
+    if (!currentFile) return;
+
+    const savedFiles = localStorage.getItem('cheatsheet_files');
+    if (savedFiles) {
+      try {
+        const parsedFiles = JSON.parse(savedFiles);
+        const currentSettings = settingsRef.current;
+        const updatedFiles = parsedFiles.map(f =>
+          f.id === currentFile.id
+            ? {
+              ...f,
+              content: markdownRef.current,
+              updatedAt: new Date().toISOString(),
+              toolbarSettings: {
+                ...currentSettings
+              }
+            }
+            : f
+        );
+        localStorage.setItem('cheatsheet_files', JSON.stringify(updatedFiles));
+        console.log('Saved current file:', currentFile.name, 'Content length:', markdownRef.current.length);
+      } catch (e) {
+        console.error('Failed to save current file:', e);
+      }
+    }
+  };
+
+  // 统一的自动保存 Effect
+  useEffect(() => {
+    if (!currentFile) return;
+
+    // 增加防抖时间到 2.5 秒，合并所有保存操作
+    const timer = setTimeout(() => {
+      saveCurrentFile();
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [markdown, currentFile, columns, fontSize, padding, gap, lineHeight, orientation, theme, fontFamily]);
+
+  // 处理文件切换
+  const handleFileChange = (file) => {
+    // 先保存当前文件
+    saveCurrentFile();
+    // 再切换到新文件
+    setCurrentFile(file);
+    setMarkdown(file.content);
+
+    // Load toolbar settings from the selected file if they exist
+    if (file.toolbarSettings) {
+      const settings = file.toolbarSettings;
+      if (settings.columns !== undefined) setColumns(settings.columns);
+      if (settings.fontSize !== undefined) setFontSize(settings.fontSize);
+      if (settings.padding !== undefined) setPadding(settings.padding);
+      if (settings.gap !== undefined) setGap(settings.gap);
+      if (settings.lineHeight !== undefined) setLineHeight(settings.lineHeight);
+      if (settings.orientation !== undefined) setOrientation(settings.orientation);
+      if (settings.theme !== undefined) setTheme(settings.theme);
+      if (settings.fontFamily !== undefined) setFontFamily(settings.fontFamily);
+    }
+
+    setIsFilePanelOpen(false);
+  };
+
+  // 处理新建文件
+  const handleNewFile = (file) => {
+    // 先保存当前文件
+    saveCurrentFile();
+    // 再切换到新文件
+    setCurrentFile(file);
+    setMarkdown(file.content);
+
+    // Load toolbar settings from the new file if they exist
+    if (file.toolbarSettings) {
+      const settings = file.toolbarSettings;
+      if (settings.columns !== undefined) setColumns(settings.columns);
+      if (settings.fontSize !== undefined) setFontSize(settings.fontSize);
+      if (settings.padding !== undefined) setPadding(settings.padding);
+      if (settings.gap !== undefined) setGap(settings.gap);
+      if (settings.lineHeight !== undefined) setLineHeight(settings.lineHeight);
+      if (settings.orientation !== undefined) setOrientation(settings.orientation);
+      if (settings.theme !== undefined) setTheme(settings.theme);
+      if (settings.fontFamily !== undefined) setFontFamily(settings.fontFamily);
+    }
+
+    setIsFilePanelOpen(false);
+  };
+
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+        const delta = e.deltaY * -0.001;
+        setScale(prev => Math.min(Math.max(prev + delta, 0.5), 3));
+      }
+    };
+
+    const container = previewContainerRef.current;
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, []);
+
+  const handleLineClick = useCallback((line) => {
+    editorRef.current?.scrollToLine(line);
+  }, []);
+
+  return (
+    <div className="app">
+      <Toolbar
+        columns={columns}
+        setColumns={setColumns}
+        fontSize={fontSize}
+        setFontSize={setFontSize}
+        padding={padding}
+        setPadding={setPadding}
+        gap={gap}
+        setGap={setGap}
+        lineHeight={lineHeight}
+        setLineHeight={setLineHeight}
+        scale={scale}
+        setScale={setScale}
+        orientation={orientation}
+        setOrientation={setOrientation}
+        theme={theme}
+        setTheme={setTheme}
+        fontFamily={fontFamily}
+        setFontFamily={setFontFamily}
+        appTheme={appTheme}
+        setAppTheme={setAppTheme}
+        previewRef={previewRef}
+        onFileClick={() => setIsFilePanelOpen(true)}
+        defaultColumns={defaultValues.columns}
+        defaultFontSize={defaultValues.fontSize}
+        defaultPadding={defaultValues.padding}
+        defaultGap={defaultValues.gap}
+        defaultLineHeight={defaultValues.lineHeight}
+        defaultOrientation={defaultValues.orientation}
+        defaultTheme={defaultValues.theme}
+        defaultFontFamily={defaultValues.fontFamily}
+        defaultAppTheme={defaultValues.appTheme}
+        currentFile={currentFile} // Pass currentFile to Toolbar
+        themes={allThemes}
+        onThemeUpdate={handleThemeUpdate}
+      />
+      <FilePanel
+        isOpen={isFilePanelOpen}
+        onClose={() => setIsFilePanelOpen(false)}
+        currentFile={currentFile}
+        onFileChange={handleFileChange}
+        onNewFile={handleNewFile}
+        markdown={markdown}
+        toolbarSettings={{
+          columns,
+          fontSize,
+          padding,
+          gap,
+          lineHeight,
+          orientation,
+          theme,
+          fontFamily
+        }}
+      />
+      <div className="main-content">
+        <div className="editor-panel" style={{ width: `${splitSize}%` }}>
+          <Editor
+            key={currentFile?.id}
+            ref={editorRef}
+            markdown={markdown}
+            setMarkdown={setMarkdown}
+            appTheme={appTheme}
+            currentFile={currentFile}
+          />
+        </div>
+        <div
+          className="resize-handle"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startSize = splitSize;
+
+            const handleMouseMove = (e) => {
+              const delta = ((e.clientX - startX) / window.innerWidth) * 100;
+              const newSize = Math.min(Math.max(startSize + delta, 20), 80);
+              setSplitSize(newSize);
+            };
+
+            const handleMouseUp = () => {
+              document.removeEventListener('mousemove', handleMouseMove);
+              document.removeEventListener('mouseup', handleMouseUp);
+            };
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+          }}
+        >
+          <div className="resize-handle-bar"></div>
+        </div>
+        <div
+          className="preview-panel"
+          style={{ width: `${100 - splitSize}%` }}
+          ref={previewContainerRef}
+        >
+          <Preview
+            key={currentFile?.id} // Add key to force re-render when file changes
+            ref={previewRef}
+            markdown={markdown}
+            columns={columns}
+            fontSize={fontSize}
+            padding={padding}
+            gap={gap}
+            lineHeight={lineHeight}
+            scale={scale}
+            setScale={setScale}
+            orientation={orientation}
+            theme={theme}
+            themes={allThemes}
+            fontFamily={fontFamily}
+            onLineClick={handleLineClick}
+            liveUpdate={liveUpdate}
+            setLiveUpdate={setLiveUpdate}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;

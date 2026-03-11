@@ -1,0 +1,239 @@
+.toolbar {
+    height: 50px; /* Reduced from 60px to 50px */
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-lg);
+    flex-shrink: 0;
+}
+
+.toolbar-left,
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex: 1;
+}
+
+.toolbar-right {
+    justify-content: flex-end;
+}
+
+.toolbar-center {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md); /* Reduced from spacing-xl to spacing-md */
+    flex: 2;
+    justify-content: center;
+}
+
+.toolbar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--color-accent-primary);
+}
+
+.toolbar-brand h1 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.toolbar-brand a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.toolbar-brand a:hover {
+    color: var(--color-accent-primary);
+}
+
+.toolbar-control {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px; /* Reduced gap for tighter alignment */
+}
+
+.toolbar-control.orientation-control {
+    align-items: center;
+    margin-left: var(--spacing-md); /* Move orientation control to the right */
+}
+
+.label {
+    font-size: 0.65rem; /* Reduced from 0.7rem to 0.65rem */
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1; /* Ensure tight alignment */
+    margin-bottom: 1px; /* Add slight margin for better visual alignment */
+}
+
+.select {
+    padding: 2px var(--spacing-sm); /* Reduced top/bottom padding */
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    outline: none;
+    cursor: pointer;
+    width: 100px; /* Added fixed width */
+    height: 24px; /* Fixed height for consistent alignment */
+}
+
+.select:focus {
+    border-color: var(--color-accent-primary);
+}
+
+.number-input {
+    width: 60px; /* Increased from 50px to 60px */
+    padding: 2px 8px; /* Reduced top/bottom padding to match select */
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    outline: none;
+    height: 24px; /* Fixed height for consistent alignment */
+}
+
+.number-input:focus {
+    border-color: var(--color-accent-primary);
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 8px; /* More rounded corners */
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(145deg, var(--color-accent-primary), var(--color-accent-secondary)); /* Lighter gradient */
+    color: white !important; /* Ensuring text is always white */
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Metallic shine effect */
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0) 51%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover::before {
+    transform: rotate(30deg) translate(20%, 20%);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(145deg, var(--color-accent-secondary), var(--color-accent-primary)); /* Reversed gradient on hover */
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.btn-reset {
+    padding: 4px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.orientation-toggle {
+    display: flex;
+    gap: 2px; /* Reduced gap for tighter alignment */
+    background: var(--color-bg-primary);
+    padding: 1px; /* Reduced padding */
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    height: 24px; /* Match height of other controls */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+    width: fit-content; /* Adjust width to content */
+}
+
+.icon-btn.active {
+    background: var(--color-bg-tertiary);
+    color: var(--color-accent-primary);
+}
+
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+
+/* Theme editor button styles */
+.label-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.icon-btn-small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.65rem;
+    height: 0.65rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all 0.2s;
+}
+
+.icon-btn-small:hover {
+    color: var(--color-accent-primary);
+    background-color: var(--color-bg-tertiary);
+}
+
+.icon-btn-small svg {
+    width: 0.6rem;
+    height: 0.6rem;
+}
