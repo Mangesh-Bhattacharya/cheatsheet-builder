@@ -76,7 +76,7 @@ function Toolbar({
         <div className="toolbar">
             <div className="toolbar-left">
                 <div className="toolbar-brand">
-                    <a href="https://github.com/Haoziwan/cheatsheet-maker" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/Mangesh-Bhattacharya/cheatsheet-builder" target="_blank" rel="noopener noreferrer">
                         <Github size={20} />
                     </a>
                     <h1>Cheatsheet Maker</h1>
