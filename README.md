@@ -1,6 +1,6 @@
 # Cheatsheet Generator
 
-A React-based application for creating and exporting cheatsheets as PDF documents using Markdown.
+Create and export Markdown cheatsheets as PDF documents with a React-based interface.
 
 <img width="1918" height="989" alt="image" src="https://github.com/user-attachments/assets/80897d4b-31f7-4b8d-bca4-6a814b7e4c78" />
 
@@ -49,6 +49,7 @@ A React-based application for creating and exporting cheatsheets as PDF document
    ```
    npm run build
    ```
+
 
 
 
