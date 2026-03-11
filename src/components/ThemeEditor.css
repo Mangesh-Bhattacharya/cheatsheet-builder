@@ -1,80 +1,122 @@
 .theme-editor-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.75), rgba(0, 0, 0, 0.85));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .theme-editor-modal {
-    background-color: var(--color-bg-secondary);
-    width: 800px;
-    height: 600px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--color-border);
+  width: 800px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.92),
+    rgba(15, 23, 42, 0.72)
+  );
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(15, 23, 42, 0.9);
+  overflow: hidden;
 }
 
 .theme-editor-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0.9),
+    rgba(30, 64, 175, 0.35)
+  );
+  border-bottom: 1px solid rgba(148, 163, 184, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .theme-editor-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: var(--color-text-primary);
+  margin: 0;
+  font-size: 1.25rem;
+  color: #e5f0ff;
+  letter-spacing: 0.02em;
 }
 
 .theme-editor-content {
-    flex: 1;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  flex: 1;
+  padding: 16px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
+/* “Glass” code editor area */
 .theme-code-editor {
-    flex: 1;
-    width: 100%;
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 14px;
-    padding: 12px;
-    background-color: var(--color-bg-primary);
-    color: var(--color-text-primary);
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    resize: none;
-    outline: none;
+  flex: 1;
+  width: 100%;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 14px;
+  padding: 14px 16px;
+  background: radial-gradient(circle at top left,
+    rgba(15, 23, 42, 0.95),
+    rgba(15, 23, 42, 0.7)
+  );
+  color: var(--color-text-primary);
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  outline: none;
+  resize: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(15, 23, 42, 0.9),
+    0 10px 25px rgba(15, 23, 42, 0.9);
+  transition:
+    border-color 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    transform 0.15s ease-out;
 }
 
 .theme-code-editor:focus {
-    border-color: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+  box-shadow:
+    inset 0 0 0 1px rgba(15, 23, 42, 1),
+    0 0 0 1px rgba(59, 130, 246, 0.7),
+    0 18px 35px rgba(37, 99, 235, 0.5);
+  transform: translateY(-1px);
 }
 
 .theme-editor-error {
-    margin-top: 8px;
-    color: #ef4444;
-    font-size: 0.9rem;
-    background-color: rgba(239, 68, 68, 0.1);
-    padding: 8px;
-    border-radius: 4px;
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #fecaca;
+  background: radial-gradient(circle at left,
+    rgba(248, 113, 113, 0.16),
+    rgba(127, 29, 29, 0.25)
+  );
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(248, 113, 113, 0.55);
 }
 
+/* Footer buttons on a frosted strip */
 .theme-editor-footer {
-    padding: 16px;
-    border-top: 1px solid var(--color-border);
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
+  padding: 14px 20px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.9),
+    rgba(15, 23, 42, 0.75)
+  );
+  border-top: 1px solid rgba(148, 163, 184, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
