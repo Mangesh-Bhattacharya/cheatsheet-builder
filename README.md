@@ -5,7 +5,9 @@ A React-based application for creating and exporting cheatsheets as PDF document
 <img width="1918" height="989" alt="image" src="https://github.com/user-attachments/assets/80897d4b-31f7-4b8d-bca4-6a814b7e4c78" />
 
 
-<img width="1880" height="1005" alt="image" src="https://github.com/user-attachments/assets/267cfd0b-462a-4f07-871f-774fd3846e32" />
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/6fda6586-c431-4521-981d-0ac3d81cc885" />
+
 
 
 ## Features
@@ -47,5 +49,6 @@ A React-based application for creating and exporting cheatsheets as PDF document
    ```
    npm run build
    ```
+
 
 
