@@ -1,9 +1,22 @@
 import { Download, Github, RectangleHorizontal, RectangleVertical, RotateCcw, File, Sun, Moon, Settings } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import defaultThemes from '../styles/themes';
-import fonts from '../styles/fonts';
+import fonts, { fontCategories } from '../styles/fonts';
 import ThemeEditor from './ThemeEditor';
 import './Toolbar.css';
+
+// Dynamically load a Google Font by key
+function loadGoogleFont(fontKey) {
+    const fontData = fonts[fontKey];
+    if (!fontData || !fontData.googleFont) return;
+    const id = `gfont-${fontKey}`;
+    if (document.getElementById(id)) return;
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${fontData.googleFont}&display=swap`;
+    document.head.appendChild(link);
+}
 
 function Toolbar({
     columns, setColumns,
@@ -32,19 +45,20 @@ function Toolbar({
 }) {
     const [isThemeEditorOpen, setIsThemeEditorOpen] = useState(false);
 
+    // Load font on mount and whenever fontFamily changes
+    useEffect(() => {
+        loadGoogleFont(fontFamily);
+    }, [fontFamily]);
+
     const handleExportPDF = () => {
         const originalTitle = document.title;
         if (currentFile && currentFile.name) {
             let fileName = currentFile.name;
-            if (fileName.endsWith('.md')) {
-                fileName = fileName.slice(0, -3);
-            }
+            if (fileName.endsWith('.md')) fileName = fileName.slice(0, -3);
             document.title = fileName;
         }
         window.print();
-        setTimeout(() => {
-            document.title = originalTitle;
-        }, 1000);
+        setTimeout(() => { document.title = originalTitle; }, 1000);
     };
 
     const handleReset = () => {
@@ -56,10 +70,11 @@ function Toolbar({
         setOrientation(defaultOrientation);
         setTheme(defaultTheme);
         setFontFamily(defaultFontFamily);
-        if (setAppTheme && defaultAppTheme) {
-            setAppTheme(defaultAppTheme);
-        }
+        if (setAppTheme && defaultAppTheme) setAppTheme(defaultAppTheme);
     };
+
+    const currentFontData = fonts[fontFamily];
+    const isHandwriting = currentFontData?.category === 'handwriting';
 
     return (
         <div className="toolbar">
@@ -93,98 +108,88 @@ function Toolbar({
                         aria-label="Select Theme"
                     >
                         {themes && Object.entries(themes).map(([key, themeData]) => (
-                            <option key={key} value={key}>
-                                {themeData.name}
-                            </option>
+                            <option key={key} value={key}>{themeData.name}</option>
                         ))}
                     </select>
                 </div>
 
+                {/* Grouped Font Selector with Handwriting section */}
                 <div className="toolbar-control">
-                    <label htmlFor="font-select" className="label">Font</label>
+                    <label htmlFor="font-select" className="label">
+                        {isHandwriting ? '✍️ Handwriting' : 'Font'}
+                    </label>
                     <select
                         id="font-select"
                         value={fontFamily}
-                        onChange={(e) => setFontFamily(e.target.value)}
-                        className="select"
-                        aria-label="Select Font"
+                        onChange={(e) => {
+                            setFontFamily(e.target.value);
+                            loadGoogleFont(e.target.value);
+                        }}
+                        className={`select ${isHandwriting ? 'select-handwriting' : ''}`}
+                        aria-label="Select Font or Handwriting Style"
+                        style={isHandwriting ? { fontFamily: currentFontData?.family } : {}}
                     >
-                        {Object.entries(fonts).map(([key, fontData]) => (
-                            <option key={key} value={key}>
-                                {fontData.name}
-                            </option>
+                        {Object.entries(fontCategories).map(([category, keys]) => (
+                            <optgroup key={category} label={category}>
+                                {keys.map(key => (
+                                    fonts[key] && (
+                                        <option key={key} value={key}>
+                                            {fonts[key].name}
+                                        </option>
+                                    )
+                                ))}
+                            </optgroup>
                         ))}
                     </select>
+                    {isHandwriting && (
+                        <span className="handwriting-badge" title={currentFontData?.description}>
+                            ✍️ {currentFontData?.handwritingStyle}
+                        </span>
+                    )}
                 </div>
 
                 <div className="toolbar-control">
                     <label htmlFor="columns-input" className="label">Columns</label>
                     <input
-                        id="columns-input"
-                        type="number"
-                        min="1"
-                        max="10"
-                        value={columns}
-                        onChange={(e) => setColumns(Number(e.target.value))}
-                        className="number-input"
-                        aria-label="Number of Columns"
+                        id="columns-input" type="number" min="1" max="10"
+                        value={columns} onChange={(e) => setColumns(Number(e.target.value))}
+                        className="number-input" aria-label="Number of Columns"
                     />
                 </div>
 
                 <div className="toolbar-control">
                     <label htmlFor="fontsize-input" className="label">Font (pt)</label>
                     <input
-                        id="fontsize-input"
-                        type="number"
-                        min="2"
-                        max="20"
-                        value={fontSize}
-                        onChange={(e) => setFontSize(Number(e.target.value))}
-                        className="number-input"
-                        aria-label="Font Size in Points"
+                        id="fontsize-input" type="number" min="2" max="20"
+                        value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))}
+                        className="number-input" aria-label="Font Size in Points"
                     />
                 </div>
 
                 <div className="toolbar-control">
                     <label htmlFor="padding-input" className="label">Padding (mm)</label>
                     <input
-                        id="padding-input"
-                        type="number"
-                        min="0"
-                        max="50"
-                        value={padding}
-                        onChange={(e) => setPadding(Number(e.target.value))}
-                        className="number-input"
-                        aria-label="Padding in Millimeters"
+                        id="padding-input" type="number" min="0" max="50"
+                        value={padding} onChange={(e) => setPadding(Number(e.target.value))}
+                        className="number-input" aria-label="Padding in Millimeters"
                     />
                 </div>
 
                 <div className="toolbar-control">
                     <label htmlFor="gap-input" className="label">Gap (mm)</label>
                     <input
-                        id="gap-input"
-                        type="number"
-                        min="0"
-                        max="20"
-                        value={gap}
-                        onChange={(e) => setGap(Number(e.target.value))}
-                        className="number-input"
-                        aria-label="Gap in Millimeters"
+                        id="gap-input" type="number" min="0" max="20"
+                        value={gap} onChange={(e) => setGap(Number(e.target.value))}
+                        className="number-input" aria-label="Gap in Millimeters"
                     />
                 </div>
 
                 <div className="toolbar-control">
                     <label htmlFor="lineheight-input" className="label">Line Height</label>
                     <input
-                        id="lineheight-input"
-                        type="number"
-                        min="0.1"
-                        max="2.5"
-                        step="0.1"
-                        value={lineHeight}
-                        onChange={(e) => setLineHeight(Number(e.target.value))}
-                        className="number-input"
-                        aria-label="Line Height"
+                        id="lineheight-input" type="number" min="0.1" max="2.5" step="0.1"
+                        value={lineHeight} onChange={(e) => setLineHeight(Number(e.target.value))}
+                        className="number-input" aria-label="Line Height"
                     />
                 </div>
 
@@ -194,8 +199,7 @@ function Toolbar({
                         <button
                             className={`icon-btn ${orientation === 'landscape' ? 'active' : ''}`}
                             onClick={() => setOrientation('landscape')}
-                            title="Landscape"
-                            aria-label="Landscape Orientation"
+                            title="Landscape" aria-label="Landscape Orientation"
                             aria-pressed={orientation === 'landscape'}
                         >
                             <RectangleHorizontal size={18} />
@@ -203,8 +207,7 @@ function Toolbar({
                         <button
                             className={`icon-btn ${orientation === 'portrait' ? 'active' : ''}`}
                             onClick={() => setOrientation('portrait')}
-                            title="Portrait"
-                            aria-label="Portrait Orientation"
+                            title="Portrait" aria-label="Portrait Orientation"
                             aria-pressed={orientation === 'portrait'}
                         >
                             <RectangleVertical size={18} />
@@ -251,6 +254,7 @@ function Toolbar({
                     PDF
                 </button>
             </div>
+
             <ThemeEditor
                 isOpen={isThemeEditorOpen}
                 onClose={() => setIsThemeEditorOpen(false)}
