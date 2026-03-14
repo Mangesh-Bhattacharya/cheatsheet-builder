@@ -44,6 +44,20 @@
     color: #000;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     line-height: 1.2;
+    position: relative;
+}
+
+/* Paper template background support */
+.preview-page[data-paper] {
+    background-color: white;
+    background-repeat: repeat;
+    background-position: top left;
+}
+
+/* Ensure text/content renders on top of paper background */
+.preview-page > * {
+    position: relative;
+    z-index: 1;
 }
 
 .page-columns {
@@ -57,7 +71,6 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    /* Simulate column rule */
     border-right: 1px solid #ddd;
 }
 
@@ -198,14 +211,14 @@
 }
 
 .preview-page .md-th {
-    background: #f0f0f0;
+    background: rgba(240, 240, 240, 0.9);
     font-weight: 600;
     white-space: normal;
     color: inherit;
 }
 
 .preview-page .md-tr:nth-child(even) {
-    background: var(--theme-table-striped, #f9f9f9);
+    background: var(--theme-table-striped, rgba(249,249,249,0.85));
 }
 
 .preview-page .md-link {
@@ -244,8 +257,6 @@
     break-inside: avoid;
 }
 
-
-
 /* Prevent breaking inside elements */
 .preview-page h1,
 .preview-page h2,
@@ -274,12 +285,10 @@
         print-color-adjust: exact;
     }
 
-    /* Hide everything by default */
     body>* {
         display: none !important;
     }
 
-    /* Only show the app root and necessary structure */
     #root,
     .app,
     .main-content,
@@ -298,7 +307,6 @@
         background: white !important;
     }
 
-    /* Specifically hide UI components */
     .toolbar,
     .editor-panel,
     .resize-handle,
@@ -307,21 +315,20 @@
         display: none !important;
     }
 
-    /* Reset zoom/scaling for print */
     .preview-scaler {
         zoom: 1 !important;
         transform: none !important;
     }
 
-    /* Page styling */
+    /* Keep paper template backgrounds in print */
     .preview-page {
         box-shadow: none !important;
         margin: 0 !important;
         page-break-after: always;
         break-after: page;
         overflow: hidden;
-        /* Ensure content doesn't spill over in print view */
-        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     .preview-page:last-child {
@@ -330,7 +337,6 @@
     }
 
     /* KaTeX optimization for print */
-    /* Fix thick fraction lines and other horizontal rules in formulas */
     .katex .frac-line,
     .katex .mfrac .frac-line,
     .katex .overline .overline-line,
@@ -341,18 +347,15 @@
         transform-origin: center;
     }
 
-    /* Ensure stretchy elements maintain proper thickness */
     .katex .stretchy {
         transform: scaleY(0.8);
     }
 
-    /* Reset box-sizing for better rendering */
     .katex,
     .katex * {
         box-sizing: content-box;
     }
 
-    /* Ensure math elements don't get clipped */
     .katex-display,
     .katex {
         overflow: visible !important;
