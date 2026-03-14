@@ -17,8 +17,7 @@ function Toolbar({
     appTheme, setAppTheme,
     previewRef,
     onFileClick,
-    currentFile, // Add currentFile prop
-    // 添加reset功能所需的默认值
+    currentFile,
     defaultColumns,
     defaultFontSize,
     defaultPadding,
@@ -32,32 +31,22 @@ function Toolbar({
     onThemeUpdate
 }) {
     const [isThemeEditorOpen, setIsThemeEditorOpen] = useState(false);
-    const handleExportPDF = () => {
-        // Save the original title
-        const originalTitle = document.title;
 
-        // Set document title to current file name (if available)
+    const handleExportPDF = () => {
+        const originalTitle = document.title;
         if (currentFile && currentFile.name) {
-            // Sanitize filename by removing extension if present
             let fileName = currentFile.name;
             if (fileName.endsWith('.md')) {
                 fileName = fileName.slice(0, -3);
             }
             document.title = fileName;
         }
-
-        // Trigger browser print dialog
-        // The @media print styles in Preview.css will handle the layout
-        // to ensure only the preview pages are printed in A4 landscape
         window.print();
-
-        // Restore original title after a short delay
         setTimeout(() => {
             document.title = originalTitle;
         }, 1000);
     };
 
-    // 添加reset功能
     const handleReset = () => {
         setColumns(defaultColumns);
         setFontSize(defaultFontSize);
@@ -76,29 +65,32 @@ function Toolbar({
         <div className="toolbar">
             <div className="toolbar-left">
                 <div className="toolbar-brand">
-                    <a href="https://github.com/Mangesh-Bhattacharya/cheatsheet-builder" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/Mangesh-Bhattacharya/cheatsheet-builder" target="_blank" rel="noopener noreferrer" aria-label="View on GitHub">
                         <Github size={20} />
                     </a>
-                    <h1>Cheatsheet Maker</h1>
+                    <h1>Cheatsheet Builder</h1>
                 </div>
             </div>
 
             <div className="toolbar-center">
                 <div className="toolbar-control">
                     <div className="label-with-icon">
-                        <label className="label">Theme</label>
+                        <label htmlFor="theme-select" className="label">Theme</label>
                         <button
                             className="icon-btn-small"
                             onClick={() => setIsThemeEditorOpen(true)}
                             title="Edit Theme"
+                            aria-label="Edit Theme"
                         >
                             <Settings size={12} />
                         </button>
                     </div>
                     <select
+                        id="theme-select"
                         value={theme}
                         onChange={(e) => setTheme(e.target.value)}
                         className="select"
+                        aria-label="Select Theme"
                     >
                         {themes && Object.entries(themes).map(([key, themeData]) => (
                             <option key={key} value={key}>
@@ -109,11 +101,13 @@ function Toolbar({
                 </div>
 
                 <div className="toolbar-control">
-                    <label className="label">Font</label>
+                    <label htmlFor="font-select" className="label">Font</label>
                     <select
+                        id="font-select"
                         value={fontFamily}
                         onChange={(e) => setFontFamily(e.target.value)}
                         className="select"
+                        aria-label="Select Font"
                     >
                         {Object.entries(fonts).map(([key, fontData]) => (
                             <option key={key} value={key}>
@@ -124,56 +118,65 @@ function Toolbar({
                 </div>
 
                 <div className="toolbar-control">
-                    <label className="label">Columns</label>
+                    <label htmlFor="columns-input" className="label">Columns</label>
                     <input
+                        id="columns-input"
                         type="number"
                         min="1"
                         max="10"
                         value={columns}
                         onChange={(e) => setColumns(Number(e.target.value))}
                         className="number-input"
+                        aria-label="Number of Columns"
                     />
                 </div>
 
                 <div className="toolbar-control">
-                    <label className="label">Font (pt)</label>
+                    <label htmlFor="fontsize-input" className="label">Font (pt)</label>
                     <input
+                        id="fontsize-input"
                         type="number"
                         min="2"
                         max="20"
                         value={fontSize}
                         onChange={(e) => setFontSize(Number(e.target.value))}
                         className="number-input"
+                        aria-label="Font Size in Points"
                     />
                 </div>
 
                 <div className="toolbar-control">
-                    <label className="label">Padding (mm)</label>
+                    <label htmlFor="padding-input" className="label">Padding (mm)</label>
                     <input
+                        id="padding-input"
                         type="number"
                         min="0"
                         max="50"
                         value={padding}
                         onChange={(e) => setPadding(Number(e.target.value))}
                         className="number-input"
+                        aria-label="Padding in Millimeters"
                     />
                 </div>
 
                 <div className="toolbar-control">
-                    <label className="label">Gap (mm)</label>
+                    <label htmlFor="gap-input" className="label">Gap (mm)</label>
                     <input
+                        id="gap-input"
                         type="number"
                         min="0"
                         max="20"
                         value={gap}
                         onChange={(e) => setGap(Number(e.target.value))}
                         className="number-input"
+                        aria-label="Gap in Millimeters"
                     />
                 </div>
 
                 <div className="toolbar-control">
-                    <label className="label">Line Height</label>
+                    <label htmlFor="lineheight-input" className="label">Line Height</label>
                     <input
+                        id="lineheight-input"
                         type="number"
                         min="0.1"
                         max="2.5"
@@ -181,16 +184,19 @@ function Toolbar({
                         value={lineHeight}
                         onChange={(e) => setLineHeight(Number(e.target.value))}
                         className="number-input"
+                        aria-label="Line Height"
                     />
                 </div>
 
                 <div className="toolbar-control orientation-control">
                     <label className="label">Orientation</label>
-                    <div className="orientation-toggle">
+                    <div className="orientation-toggle" role="group" aria-label="Page Orientation">
                         <button
                             className={`icon-btn ${orientation === 'landscape' ? 'active' : ''}`}
                             onClick={() => setOrientation('landscape')}
                             title="Landscape"
+                            aria-label="Landscape Orientation"
+                            aria-pressed={orientation === 'landscape'}
                         >
                             <RectangleHorizontal size={18} />
                         </button>
@@ -198,6 +204,8 @@ function Toolbar({
                             className={`icon-btn ${orientation === 'portrait' ? 'active' : ''}`}
                             onClick={() => setOrientation('portrait')}
                             title="Portrait"
+                            aria-label="Portrait Orientation"
+                            aria-pressed={orientation === 'portrait'}
                         >
                             <RectangleVertical size={18} />
                         </button>
@@ -208,6 +216,7 @@ function Toolbar({
                     className="btn btn-secondary btn-reset"
                     onClick={handleReset}
                     title="Reset to default settings"
+                    aria-label="Reset to Default Settings"
                 >
                     <RotateCcw size={16} />
                 </button>
@@ -219,6 +228,7 @@ function Toolbar({
                         className="btn btn-secondary btn-icon"
                         onClick={() => setAppTheme(appTheme === 'dark' ? 'light' : 'dark')}
                         title={`Switch to ${appTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
+                        aria-label={`Switch to ${appTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
                     >
                         {appTheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                     </button>
@@ -227,6 +237,7 @@ function Toolbar({
                     className="btn btn-secondary"
                     onClick={onFileClick}
                     title="Manage files"
+                    aria-label="Manage Files"
                 >
                     <File size={16} />
                     Files
@@ -234,6 +245,7 @@ function Toolbar({
                 <button
                     className="btn btn-primary"
                     onClick={handleExportPDF}
+                    aria-label="Export as PDF"
                 >
                     <Download size={16} />
                     PDF
